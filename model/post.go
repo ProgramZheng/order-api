@@ -8,12 +8,11 @@ import (
 )
 
 type Post struct {
-	Id    int    `json:"id"`
+	Id    int32  `json:"id"`
 	Title string `json:"title"`
 }
 
 func (post *Post) Query(id int, title string) (posts []Post, err error) {
-	var result bson.M
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	cur, err := collection.Find(ctx, bson.D{})
@@ -23,10 +22,17 @@ func (post *Post) Query(id int, title string) (posts []Post, err error) {
 	defer cur.Close(ctx)
 
 	for cur.Next(ctx) {
+		var result bson.M
 		err := cur.Decode(&result)
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		post := Post{
+			Id:    result["id"].(int32),
+			Title: result["title"].(string),
+		}
+		posts = append(posts, post)
 	}
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
