@@ -1,8 +1,6 @@
 package main
 
-import (
-	"github.com/ProgramZheng/order-api/router"
-)
+import "github.com/ProgramZheng/order-api/router"
 
 // func CORSMiddleware() gin.HandlerFunc {
 // 	return func(c *gin.Context) {
