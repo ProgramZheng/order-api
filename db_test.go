@@ -15,7 +15,7 @@ type Post struct {
 }
 
 func TestQuery(t *testing.T) {
-	posts := []Post{}
+	data := []Post{}
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	cur, err := collection.Find(ctx, bson.D{})
@@ -30,16 +30,16 @@ func TestQuery(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(result)
 
 		post := Post{
 			Id:    result["id"].(int32),
 			Title: result["title"].(string),
 		}
-		posts = append(posts, post)
+		data = append(data, post)
 	}
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(posts)
+
+	fmt.Println(data)
 }
