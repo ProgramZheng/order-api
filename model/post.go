@@ -58,6 +58,8 @@ func (post *Post) Query(id int, title string) (posts []Post, err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	data = append(data, result)
+	posts = data
 	fmt.Println(result)
 
 	// for _, v := range data {
