@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"fmt"
+
 	"github.com/ProgramZheng/order-api/model"
 
 	"github.com/graphql-go/graphql"
@@ -10,6 +12,9 @@ var postType = graphql.NewObject(graphql.ObjectConfig{
 	Name:        "Post",
 	Description: "Post Model",
 	Fields: graphql.Fields{
+		"_query": &graphql.Field{
+			Type: graphql.String,
+		},
 		"id": &graphql.Field{
 			Type: graphql.Int,
 		},
@@ -25,6 +30,9 @@ var queryPost = graphql.Field{
 	Type:        graphql.NewList(postType),
 
 	Args: graphql.FieldConfigArgument{
+		"_query": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
 		"id": &graphql.ArgumentConfig{
 			Type: graphql.Int,
 		},
@@ -35,10 +43,12 @@ var queryPost = graphql.Field{
 
 	//接到請求後，執行的函數
 	Resolve: func(p graphql.ResolveParams) (result interface{}, err error) {
+		_query, _ := p.Args["_query"].(string)
 
 		id, _ := p.Args["id"].(int)
 		title, _ := p.Args["title"].(string)
 
-		return (&model.Post{}).Query(id, title)
+		fmt.Println("/" + title + "$/")
+		return (&model.Post{}).Query(_query, id, title)
 	},
 }
