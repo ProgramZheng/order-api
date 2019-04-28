@@ -1,6 +1,13 @@
 package main
 
-import "github.com/ProgramZheng/order-api/router"
+import (
+	"context"
+	"fmt"
+
+	"github.com/ProgramZheng/order-api/mongodb"
+	"github.com/ProgramZheng/order-api/router"
+	"github.com/mongodb/mongo-go-driver/bson"
+)
 
 // func CORSMiddleware() gin.HandlerFunc {
 // 	return func(c *gin.Context) {
@@ -12,6 +19,65 @@ import "github.com/ProgramZheng/order-api/router"
 // 	}
 // }
 
+func createData() {
+	docs := []interface{}{
+		bson.D{
+			{"item", "journal"},
+			{"qty", 25},
+			{"size", bson.D{
+				{"h", 14},
+				{"w", 21},
+				{"uom", "cm"},
+			}},
+			{"status", "A"},
+		},
+		bson.D{
+			{"item", "notebook"},
+			{"qty", 50},
+			{"size", bson.D{
+				{"h", 8.5},
+				{"w", 11},
+				{"uom", "in"},
+			}},
+			{"status", "A"},
+		},
+		bson.D{
+			{"item", "paper"},
+			{"qty", 100},
+			{"size", bson.D{
+				{"h", 8.5},
+				{"w", 11},
+				{"uom", "in"},
+			}},
+			{"status", "D"},
+		},
+		bson.D{
+			{"item", "planner"},
+			{"qty", 75},
+			{"size", bson.D{
+				{"h", 22.85},
+				{"w", 30},
+				{"uom", "cm"},
+			}},
+			{"status", "D"},
+		},
+		bson.D{
+			{"item", "postcard"},
+			{"qty", 45},
+			{"size", bson.D{
+				{"h", 10},
+				{"w", 15.25},
+				{"uom", "cm"},
+			}},
+			{"status", "A"},
+		},
+	}
+	client, _ := mongodb.GetClient()
+	collection := client.Database("order").Collection("item")
+	result, _ := collection.InsertMany(context.Background(), docs)
+	fmt.Println(result)
+}
+
 func main() {
 	// r := gin.Default()
 	// r.Use(CORSMiddleware())
@@ -21,6 +87,8 @@ func main() {
 	// 	})
 	// })
 	// r.Run(":3000") // listen and serve on 0.0.0.0:8080
+
+	// createData()
 	r := router.Router
 
 	router.SetRouter()

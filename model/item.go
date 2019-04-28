@@ -1,23 +1,26 @@
-package main
+package model
 
 import (
 	"fmt"
 	"log"
-	"testing"
 
 	"github.com/ProgramZheng/order-api/mongodb"
 	"github.com/mongodb/mongo-go-driver/bson"
 )
 
-type Post struct {
-	Id    int32  `json:"id"`
-	Title string `json:"title"`
+type Item struct {
+	Item string
+	qty  int32
+	// size   bson.D
+	status string
 }
 
-func TestQuery(t *testing.T) {
-	data := []Post{}
+func (item *Item) Query(_query string) (items []Item, err error) {
+
+	data := []Item{}
 	client, ctx := mongodb.GetClient()
-	collection := client.Database("order").Collection("post")
+	collection := client.Database("order").Collection("item")
+
 	cur, err := collection.Find(ctx, bson.D{})
 	if err != nil {
 		log.Fatal(err)
@@ -31,15 +34,19 @@ func TestQuery(t *testing.T) {
 			log.Fatal(err)
 		}
 
-		post := Post{
-			Id:    result["id"].(int32),
-			Title: result["title"].(string),
+		item := Item{
+			Item: result["item"].(string),
+			qty:  result["qty"].(int32),
+			// size:   result["size"].(bson.D),
+			status: result["status"].(string),
 		}
-		data = append(data, post)
+		data = append(data, item)
 	}
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)
 	}
-
+	items = data
 	fmt.Println(data)
+
+	return
 }

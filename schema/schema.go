@@ -11,6 +11,7 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Fields: graphql.Fields{
 		"hello": &queryHello,
 		"post":  &queryPost,
+		"item":  &queryItem,
 	},
 })
 

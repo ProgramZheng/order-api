@@ -1,9 +1,8 @@
 package schema
 
 import (
-	"fmt"
-
 	"github.com/ProgramZheng/order-api/model"
+	"github.com/mongodb/mongo-go-driver/bson"
 
 	"github.com/graphql-go/graphql"
 )
@@ -43,12 +42,16 @@ var queryPost = graphql.Field{
 
 	//接到請求後，執行的函數
 	Resolve: func(p graphql.ResolveParams) (result interface{}, err error) {
-		_query, _ := p.Args["_query"].(string)
-
-		id, _ := p.Args["id"].(int)
-		title, _ := p.Args["title"].(string)
-
-		fmt.Println("/" + title + "$/")
-		return (&model.Post{}).Query(_query, id, title)
+		filter := bson.D{}
+		for key, value := range p.Args {
+			switch value.(type) {
+			case int:
+				filter = append(filter, bson.E{key, value})
+			case string:
+				filter = append(filter, bson.E{key, bson.M{"$regex": value}})
+			}
+		}
+		// fmt.Println(filter)
+		return (&model.Post{}).Query(filter)
 	},
 }
