@@ -28,11 +28,10 @@ func (post *Post) Query(filter bson.D) (posts []interface{}, err error) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		// fmt.Println(post)
+		// fmt.Println(reflect.TypeOf(post))
 		//return data
 		posts = append(posts, post)
 	}
-	// fmt.Println(posts)
 
 	if err := cur.Err(); err != nil {
 		log.Fatal(err)

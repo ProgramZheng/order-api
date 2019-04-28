@@ -41,7 +41,12 @@ var queryPost = graphql.Field{
 	},
 
 	//接到請求後，執行的函數
-	Resolve: func(p graphql.ResolveParams) (result interface{}, err error) {
+	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+		type result struct {
+			data interface{}
+			err  error
+		}
+		//
 		filter := bson.D{}
 		for key, value := range p.Args {
 			switch value.(type) {
@@ -51,7 +56,17 @@ var queryPost = graphql.Field{
 				filter = append(filter, bson.E{key, bson.M{"$regex": value}})
 			}
 		}
+		model, err := (&model.Post{}).Query(filter)
+		//
+		ch := make(chan *result, 1)
+		go func() {
+			ch <- &result{data: model, err: err}
+		}()
 		// fmt.Println(filter)
-		return (&model.Post{}).Query(filter)
+		// return (&model.Post{}).Query(filter)
+		return func() (interface{}, error) {
+			r := <-ch
+			return r.data, r.err
+		}, nil
 	},
 }
