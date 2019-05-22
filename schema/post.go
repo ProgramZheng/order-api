@@ -56,7 +56,7 @@ var queryPost = graphql.Field{
 				filter = append(filter, bson.E{key, bson.M{"$regex": value}})
 			}
 		}
-		model, err := (&model.Post{}).Query(filter)
+		model, err := model.Query(filter)
 		//
 		ch := make(chan *result, 1)
 		go func() {
