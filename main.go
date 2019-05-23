@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	_ "github.com/joho/godotenv/autoload"
+
 	"github.com/ProgramZheng/order-api/mongodb"
 	"github.com/ProgramZheng/order-api/router"
 	"github.com/mongodb/mongo-go-driver/bson"

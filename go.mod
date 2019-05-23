@@ -15,6 +15,7 @@ require (
 	github.com/graphql-go/graphql v0.7.7
 	github.com/graphql-go/handler v0.2.3
 	github.com/jmank88/nuts v0.3.0 // indirect
+	github.com/joho/godotenv v1.3.0
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/mongodb/mongo-go-driver v1.0.0
