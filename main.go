@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
+
+	_ "github.com/joho/godotenv/autoload"
 
 	"github.com/ProgramZheng/order-api/mongodb"
 	"github.com/ProgramZheng/order-api/router"
@@ -89,6 +92,7 @@ func main() {
 	// r.Run(":3000") // listen and serve on 0.0.0.0:8080
 
 	// createData()
+	fmt.Println(os.Getenv("DB_HOST"))
 	r := router.Router
 
 	router.SetRouter()
