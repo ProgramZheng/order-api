@@ -23,9 +23,9 @@ var postType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-var queryPost = graphql.Field{
-	Name:        "QueryPost",
-	Description: "Query Post",
+var postList = graphql.Field{
+	Name:        "postList",
+	Description: "Get post to list",
 	Type:        graphql.NewList(postType),
 
 	Args: graphql.FieldConfigArgument{
@@ -56,14 +56,12 @@ var queryPost = graphql.Field{
 				filter = append(filter, bson.E{key, bson.M{"$regex": value}})
 			}
 		}
-		model, err := model.Query(filter)
+		model, err := model.PostList(filter)
 		//
 		ch := make(chan *result, 1)
 		go func() {
 			ch <- &result{data: model, err: err}
 		}()
-		// fmt.Println(filter)
-		// return (&model.Post{}).Query(filter)
 		return func() (interface{}, error) {
 			r := <-ch
 			return r.data, r.err

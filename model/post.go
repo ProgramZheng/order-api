@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/ProgramZheng/order-api/mongodb"
@@ -13,11 +12,10 @@ type Post struct {
 	Title string `json:"title"`
 }
 
-func Query(filter bson.D) (posts []interface{}, err error) {
+func PostList(filter bson.D) (posts []interface{}, err error) {
 
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
-	// fmt.Println(filter)
 	cur, err := collection.Find(ctx, filter)
 	if err != nil {
 		log.Fatal(err)
@@ -30,7 +28,6 @@ func Query(filter bson.D) (posts []interface{}, err error) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(post)
 		//return data
 		posts = append(posts, post)
 	}
