@@ -1,8 +1,6 @@
 package schema
 
 import (
-	"fmt"
-
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/language/ast"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -41,7 +39,6 @@ var ObjectID = graphql.NewScalar(graphql.ScalarConfig{
 	ParseLiteral: func(valueAST ast.Value) (result interface{}) {
 		switch valueAST := valueAST.(type) {
 		case *ast.StringValue:
-			fmt.Println(valueAST)
 			result, _ = primitive.ObjectIDFromHex(valueAST.Value)
 			return
 		}
@@ -74,4 +71,5 @@ var rootMutation = graphql.NewObject(graphql.ObjectConfig{
 var Schema, _ = graphql.NewSchema(graphql.SchemaConfig{
 	Query:    rootQuery,
 	Mutation: rootMutation, //需透過GraphQL更新數據所使用的
+	Types:    []graphql.Type{ObjectID},
 })

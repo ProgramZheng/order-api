@@ -10,9 +10,9 @@ import (
 )
 
 type Post struct {
-	ID    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
-	Title string             `bson:"title"`
-	Text  string             `bson:"text"`
+	ID    primitive.ObjectID `json:"_id" bson:"_id"`
+	Title string             `json:"title" bson:"title"`
+	Text  string             `json:"text" bson:"text"`
 }
 
 func ById(filter bson.D) (post Post, err error) {
