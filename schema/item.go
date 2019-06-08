@@ -49,6 +49,6 @@ var queryItem = graphql.Field{
 	Resolve: func(p graphql.ResolveParams) (result interface{}, err error) {
 		_query, _ := p.Args["_query"].(string)
 
-		return (&model.Item{}).Query(_query)
+		return (&model.Item{}).List(_query)
 	},
 }

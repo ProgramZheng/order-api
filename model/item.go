@@ -15,7 +15,7 @@ type Item struct {
 	status string
 }
 
-func (item *Item) Query(_query string) (items []Item, err error) {
+func (item *Item) List(_query string) (items []Item, err error) {
 
 	data := []Item{}
 	client, ctx := mongodb.GetClient()
