@@ -8,7 +8,7 @@ import (
 
 	"github.com/ProgramZheng/order-api/mongodb"
 	"github.com/ProgramZheng/order-api/router"
-	"github.com/mongodb/mongo-go-driver/bson"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 // func CORSMiddleware() gin.HandlerFunc {

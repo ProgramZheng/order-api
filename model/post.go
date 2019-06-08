@@ -5,20 +5,20 @@ import (
 	"log"
 
 	"github.com/ProgramZheng/order-api/mongodb"
-	"github.com/mongodb/mongo-go-driver/bson"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Post struct {
-	Id    int32  `json:"id"`
-	Title string `json:"title"`
-	Text  string `json:"text"`
+	ID    primitive.ObjectID `json:"id,omitempty" bson:"_id,omitempty"`
+	Title string             `bson:"title"`
+	Text  string             `bson:"text"`
 }
 
 func ById(filter bson.D) (post Post, err error) {
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	err = collection.FindOne(ctx, filter).Decode(&post)
-	fmt.Println(err)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -30,6 +30,7 @@ func List(filter bson.D) (posts []interface{}, err error) {
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	cur, err := collection.Find(ctx, filter)
+	fmt.Println(filter)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -46,6 +47,17 @@ func List(filter bson.D) (posts []interface{}, err error) {
 	}
 
 	if err := cur.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return
+}
+
+func Add(data bson.M) (id interface{}, err error) {
+	client, ctx := mongodb.GetClient()
+	collection := client.Database("order").Collection("post")
+	res, err := collection.InsertOne(ctx, data)
+	id = res.InsertedID
+	if err != nil {
 		log.Fatal(err)
 	}
 	return

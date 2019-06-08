@@ -1,8 +1,53 @@
 package schema
 
 import (
+	"fmt"
+
 	"github.com/graphql-go/graphql"
+	"github.com/graphql-go/graphql/language/ast"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+var ObjectID = graphql.NewScalar(graphql.ScalarConfig{
+	Name:        "ObjectID",
+	Description: "The `primitive` scalar type represents a BSON Object.",
+	// Serialize serializes `primitive.ObjectID` to string.
+	Serialize: func(value interface{}) interface{} {
+		switch value := value.(type) {
+		case primitive.ObjectID:
+			return value.Hex()
+		case *primitive.ObjectID:
+			v := *value
+			return v.Hex()
+		default:
+			return nil
+		}
+	},
+	// ParseValue parses GraphQL variables from `string` to `bson.ObjectId`.
+	ParseValue: func(value interface{}) (result interface{}) {
+		switch value := value.(type) {
+		case string:
+			result, _ = primitive.ObjectIDFromHex(value)
+			return
+		case *string:
+			result, _ = primitive.ObjectIDFromHex(*value)
+			return
+		default:
+			return nil
+		}
+		return nil
+	},
+	// ParseLiteral parses GraphQL AST to `bson.ObjectId`.
+	ParseLiteral: func(valueAST ast.Value) (result interface{}) {
+		switch valueAST := valueAST.(type) {
+		case *ast.StringValue:
+			fmt.Println(valueAST)
+			result, _ = primitive.ObjectIDFromHex(valueAST.Value)
+			return
+		}
+		return nil
+	},
+})
 
 //定義Query
 var rootQuery = graphql.NewObject(graphql.ObjectConfig{
@@ -10,7 +55,7 @@ var rootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Description: "Root Query",
 	Fields: graphql.Fields{
 		"hello":    &queryHello,
-		"postById": postById,
+		"postById": &postById,
 		"postList": &postList,
 		"item":     &queryItem,
 	},

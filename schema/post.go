@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ProgramZheng/order-api/model"
-	"github.com/mongodb/mongo-go-driver/bson"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/graphql-go/graphql"
 )
@@ -17,8 +17,8 @@ var postType = graphql.NewObject(
 			// "_query": &graphql.Field{
 			// 	Type: graphql.String,
 			// },
-			"id": &graphql.Field{
-				Type: graphql.Int,
+			"_id": &graphql.Field{
+				Type: ObjectID,
 			},
 			"title": &graphql.Field{
 				Type: graphql.String,
@@ -30,21 +30,21 @@ var postType = graphql.NewObject(
 	},
 )
 
-var postById = &graphql.Field{
+var postById = graphql.Field{
 	Name:        "Post By Id",
-	Description: "Get post to once",
+	Description: "依照id取得Post",
 	Type:        postType,
 
 	Args: graphql.FieldConfigArgument{
-		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+		"_id": &graphql.ArgumentConfig{
+			Type: ObjectID,
 		},
 	},
 
 	//接到請求後，執行的函數
-	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 		//
-		filter := bson.D{bson.E{"id", p.Args["id"]}}
+		filter := bson.D{bson.E{"_id", params.Args["_id"]}}
 		model, err := model.ById(filter)
 		fmt.Println(model)
 		//
@@ -54,15 +54,15 @@ var postById = &graphql.Field{
 
 var postList = graphql.Field{
 	Name:        "postList",
-	Description: "Get post to list",
+	Description: "依照id或title取得Post",
 	Type:        graphql.NewList(postType),
 
 	Args: graphql.FieldConfigArgument{
 		// "_query": &graphql.ArgumentConfig{
 		// 	Type: graphql.String,
 		// },
-		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
+		"_id": &graphql.ArgumentConfig{
+			Type: ObjectID,
 		},
 		"title": &graphql.ArgumentConfig{
 			Type: graphql.String,
@@ -70,14 +70,14 @@ var postList = graphql.Field{
 	},
 
 	//接到請求後，執行的函數
-	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 		type result struct {
 			data interface{}
 			err  error
 		}
 		//
 		filter := bson.D{}
-		for key, value := range p.Args {
+		for key, value := range params.Args {
 			switch value.(type) {
 			case int:
 				filter = append(filter, bson.E{key, value})
@@ -100,6 +100,24 @@ var postList = graphql.Field{
 
 var addPost = graphql.Field{
 	Name:        "postList",
-	Description: "Get post to list",
-	Type:        graphql.NewList(postType),
+	Description: "新增Post",
+	Type:        postType,
+	Args: graphql.FieldConfigArgument{
+		"title": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"text": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+		//
+		data := bson.M{
+			"title": params.Args["title"],
+			"text":  params.Args["text"],
+		}
+		model, err := model.Add(data)
+		//
+		return model, err
+	},
 }
