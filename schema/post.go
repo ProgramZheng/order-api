@@ -54,16 +54,16 @@ var postById = graphql.Field{
 
 var postList = graphql.Field{
 	Name:        "postList",
-	Description: "依照id或title取得Post",
+	Description: "regex方式取得Post陣列",
 	Type:        graphql.NewList(postType),
 
 	Args: graphql.FieldConfigArgument{
 		// "_query": &graphql.ArgumentConfig{
 		// 	Type: graphql.String,
 		// },
-		"_id": &graphql.ArgumentConfig{
-			Type: ObjectID,
-		},
+		// "_id": &graphql.ArgumentConfig{
+		// 	Type: ObjectID,
+		// },
 		"title": &graphql.ArgumentConfig{
 			Type: graphql.String,
 		},
@@ -79,8 +79,6 @@ var postList = graphql.Field{
 		filter := bson.D{}
 		for key, value := range params.Args {
 			switch value.(type) {
-			case int:
-				filter = append(filter, bson.E{key, value})
 			case string:
 				filter = append(filter, bson.E{key, bson.M{"$regex": value}})
 			}
