@@ -15,25 +15,20 @@ type Post struct {
 	Text  string             `json:"text" bson:"text"`
 }
 
-func ById(filter bson.D) (post Post, err error) {
+//ByID get post for id
+func ByID(filter bson.D) (post Post, err error) {
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	err = collection.FindOne(ctx, filter).Decode(&post)
-	if err != nil {
-		log.Fatal(err)
-	}
 	return
 }
 
+//List get post list
 func List(filter bson.D) (posts []interface{}, err error) {
 
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	cur, err := collection.Find(ctx, filter)
-	fmt.Println(filter)
-	if err != nil {
-		log.Fatal(err)
-	}
 	defer cur.Close(ctx)
 
 	for cur.Next(ctx) {
@@ -52,13 +47,34 @@ func List(filter bson.D) (posts []interface{}, err error) {
 	return
 }
 
-func Add(data bson.M) (id interface{}, err error) {
+// Add post
+func Add(data bson.M) (post Post, err error) {
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	res, err := collection.InsertOne(ctx, data)
-	id = res.InsertedID
+	id := res.InsertedID.(primitive.ObjectID)
+	//Add return result ID to post struct
+	post.ID = id
+	//data(bson.M) to bytes
+	bsonBytes, _ := bson.Marshal(data)
+	//bytes to post struct
+	bson.Unmarshal(bsonBytes, &post)
+	return
+}
+
+// DeleteOne post
+func DeleteOne(filter bson.D) (res interface{}, err error) {
+	client, ctx := mongodb.GetClient()
+	collection := client.Database("order").Collection("post")
+	//Get post
+	var post = Post{}
+	post, err = ByID(filter)
 	if err != nil {
-		log.Fatal(err)
+		res = post
+		return
 	}
+	res, err = collection.DeleteOne(ctx, filter)
+	fmt.Println(res)
+
 	return
 }

@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/ProgramZheng/order-api/model"
 	"go.mongodb.org/mongo-driver/bson"
@@ -45,8 +45,7 @@ var postById = graphql.Field{
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 		//
 		filter := bson.D{bson.E{"_id", params.Args["_id"]}}
-		model, err := model.ById(filter)
-		fmt.Println(model)
+		model, err := model.ByID(filter)
 		//
 		return model, err
 	},
@@ -97,7 +96,7 @@ var postList = graphql.Field{
 }
 
 var addPost = graphql.Field{
-	Name:        "postList",
+	Name:        "addPost",
 	Description: "新增Post",
 	Type:        postType,
 	Args: graphql.FieldConfigArgument{
@@ -115,6 +114,27 @@ var addPost = graphql.Field{
 			"text":  params.Args["text"],
 		}
 		model, err := model.Add(data)
+		//
+		return model, err
+	},
+}
+
+var deleteOnePost = graphql.Field{
+	Name:        "deleteOnePost",
+	Description: "移除一個Post",
+	Type:        postType,
+	Args: graphql.FieldConfigArgument{
+		"_id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(ObjectID),
+		},
+	},
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+		//
+		filter := bson.D{bson.E{"_id", params.Args["_id"]}}
+		model, err := model.DeleteOne(filter)
+		if err != nil {
+			log.Fatal(err)
+		}
 		//
 		return model, err
 	},
