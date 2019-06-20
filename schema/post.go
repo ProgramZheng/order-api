@@ -1,8 +1,6 @@
 package schema
 
 import (
-	"log"
-
 	"github.com/ProgramZheng/order-api/model"
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -119,6 +117,39 @@ var addPost = graphql.Field{
 	},
 }
 
+var updateOnePost = graphql.Field{
+	Name:        "updateOnePost",
+	Description: "更新一個Post",
+	Type:        postType,
+	Args: graphql.FieldConfigArgument{
+		"_id": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(ObjectID),
+		},
+		"title": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"text": &graphql.ArgumentConfig{
+			Type: graphql.String,
+		},
+	},
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+		//
+		filter := bson.D{bson.E{"_id", params.Args["_id"]}}
+		update := bson.M{
+			"$set": bson.M{
+				"title": params.Args["title"],
+				"text":  params.Args["text"],
+			},
+		}
+		model, err := model.UpdateOne(filter, update)
+		if err != nil {
+			// log.Fatal(err)
+		}
+		//
+		return model, err
+	},
+}
+
 var deleteOnePost = graphql.Field{
 	Name:        "deleteOnePost",
 	Description: "移除一個Post",
@@ -133,7 +164,7 @@ var deleteOnePost = graphql.Field{
 		filter := bson.D{bson.E{"_id", params.Args["_id"]}}
 		model, err := model.DeleteOne(filter)
 		if err != nil {
-			log.Fatal(err)
+			// log.Fatal(err)
 		}
 		//
 		return model, err

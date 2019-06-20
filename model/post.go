@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/ProgramZheng/order-api/mongodb"
@@ -62,6 +61,25 @@ func Add(data bson.M) (post Post, err error) {
 	return
 }
 
+// UpdateOne post
+func UpdateOne(filter bson.D, update bson.M) (res interface{}, err error) {
+	client, ctx := mongodb.GetClient()
+	collection := client.Database("order").Collection("post")
+	//Get post
+	res, err = collection.UpdateOne(ctx, filter, update)
+	// fmt.Println(res)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err == nil {
+		var post = Post{}
+		post, err = ByID(filter)
+		res = post
+	}
+
+	return
+}
+
 // DeleteOne post
 func DeleteOne(filter bson.D) (res interface{}, err error) {
 	client, ctx := mongodb.GetClient()
@@ -69,12 +87,13 @@ func DeleteOne(filter bson.D) (res interface{}, err error) {
 	//Get post
 	var post = Post{}
 	post, err = ByID(filter)
-	if err != nil {
-		res = post
-		return
-	}
 	res, err = collection.DeleteOne(ctx, filter)
-	fmt.Println(res)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err == nil {
+		res = post
+	}
 
 	return
 }
