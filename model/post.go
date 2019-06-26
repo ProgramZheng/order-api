@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ProgramZheng/order-api/mongodb"
@@ -28,10 +29,12 @@ func List(filter bson.D) (posts []interface{}, err error) {
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	cur, err := collection.Find(ctx, filter)
+
 	defer cur.Close(ctx)
 
 	for cur.Next(ctx) {
 		var post = Post{}
+		fmt.Println(cur)
 		err := cur.Decode(&post)
 		if err != nil {
 			log.Fatal(err)
@@ -61,39 +64,38 @@ func Add(data bson.M) (post Post, err error) {
 	return
 }
 
+// AddMany post
+func AddMany(data []interface{}) (res interface{}, err error) {
+	client, ctx := mongodb.GetClient()
+	collection := client.Database("order").Collection("post")
+	res, err = collection.InsertMany(ctx, data)
+	// var IDs interface{}
+	// IDs = res.InsertedIDs
+	fmt.Println(res)
+	//Add return result ID to post struct
+	// post.ID = id
+	// //data(bson.M) to bytes
+	// bsonBytes, _ := bson.Marshal(data)
+	// //bytes to post struct
+	// bson.Unmarshal(bsonBytes, &post)
+	return
+}
+
 // UpdateOne post
-func UpdateOne(filter bson.D, update bson.M) (res interface{}, err error) {
+func UpdateOne(filter bson.D, update bson.M) (post Post, err error) {
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	//Get post
-	res, err = collection.UpdateOne(ctx, filter, update)
-	// fmt.Println(res)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err == nil {
-		var post = Post{}
-		post, err = ByID(filter)
-		res = post
-	}
-
+	collection.FindOneAndUpdate(ctx, filter, update).Decode(&post)
 	return
 }
 
 // DeleteOne post
-func DeleteOne(filter bson.D) (res interface{}, err error) {
+func DeleteOne(filter bson.D) (post Post, err error) {
 	client, ctx := mongodb.GetClient()
 	collection := client.Database("order").Collection("post")
 	//Get post
-	var post = Post{}
-	post, err = ByID(filter)
-	res, err = collection.DeleteOne(ctx, filter)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err == nil {
-		res = post
-	}
+	collection.FindOneAndDelete(ctx, filter).Decode(&post)
 
 	return
 }

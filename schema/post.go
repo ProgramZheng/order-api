@@ -28,6 +28,31 @@ var postType = graphql.NewObject(
 	},
 )
 
+var postNestedInputObject = graphql.NewInputObject(
+	graphql.InputObjectConfig{
+		Name: "Input",
+		Fields: graphql.InputObjectConfigFieldMap{
+			"title": &graphql.InputObjectFieldConfig{
+				Type: graphql.String,
+			},
+			"text": &graphql.InputObjectFieldConfig{
+				Type: graphql.String,
+			},
+		},
+	},
+)
+
+// var someInputObject = graphql.NewInputObject(
+// 	graphql.InputObjectConfig{
+// 		Name: "SomeInputObject",
+// 		Fields: graphql.InputObjectConfigFieldMap{
+// 			"nested": &graphql.InputObjectFieldConfig{
+// 				Type: postNestedInputObject,
+// 			},
+// 		},
+// 	},
+// )
+
 var postById = graphql.Field{
 	Name:        "Post By Id",
 	Description: "依照id取得Post",
@@ -50,9 +75,20 @@ var postById = graphql.Field{
 }
 
 var postList = graphql.Field{
-	Name:        "postList",
-	Description: "regex方式取得Post陣列",
-	Type:        graphql.NewList(postType),
+	Name: "postList",
+	Description: `
+	query{
+		postList(
+			title: title,
+			text: text
+		) {
+			_id
+			text
+			title
+		}
+	}
+	`,
+	Type: graphql.NewList(postType),
 
 	Args: graphql.FieldConfigArgument{
 		// "_query": &graphql.ArgumentConfig{
@@ -94,15 +130,27 @@ var postList = graphql.Field{
 }
 
 var addPost = graphql.Field{
-	Name:        "addPost",
-	Description: "新增Post",
-	Type:        postType,
+	Name: "addPost",
+	Description: `
+	mutation{
+		addPost(
+			title:title,
+			text:text
+		) {
+			_id
+			text
+			title
+		}
+	}
+	`,
+	Type: postType,
 	Args: graphql.FieldConfigArgument{
 		"title": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(graphql.String),
 		},
 		"text": &graphql.ArgumentConfig{
-			Type: graphql.String,
+			Type:         graphql.String,
+			DefaultValue: "",
 		},
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
@@ -117,10 +165,57 @@ var addPost = graphql.Field{
 	},
 }
 
+var addManyPost = graphql.Field{
+	Name: "addManyPost",
+	Description: `
+	mutation{
+		addManyPost(
+			array:[
+				{title:title},
+				{title:title,text:text},
+			],
+		) {
+			_id
+			text
+			title
+		}
+	}
+	`,
+	Type: postType,
+	Args: graphql.FieldConfigArgument{
+		"array": &graphql.ArgumentConfig{
+			Type: graphql.NewList(postNestedInputObject),
+		},
+	},
+	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+		//
+		data := []params.Args["array"]
+		fmt.Println(data)
+		// for key, value := range array {
+		// 	data = append(data, bson.M{key: value})
+		// }
+
+		// model, err := model.AddMany(params.Args["array"])
+		//
+		// return interface{}, error
+		return model, err
+	},
+}
+
 var updateOnePost = graphql.Field{
-	Name:        "updateOnePost",
-	Description: "更新一個Post",
-	Type:        postType,
+	Name: "updateOnePost",
+	Description: `
+	mutation{
+		updateOnePost(
+			_id:_id,
+			title:title,
+		) {
+			_id
+			text
+			title
+		}
+	}`,
+	Type: postType,
 	Args: graphql.FieldConfigArgument{
 		"_id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(ObjectID),
@@ -129,7 +224,8 @@ var updateOnePost = graphql.Field{
 			Type: graphql.NewNonNull(graphql.String),
 		},
 		"text": &graphql.ArgumentConfig{
-			Type: graphql.String,
+			Type:         graphql.String,
+			DefaultValue: "",
 		},
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
@@ -151,9 +247,18 @@ var updateOnePost = graphql.Field{
 }
 
 var deleteOnePost = graphql.Field{
-	Name:        "deleteOnePost",
-	Description: "移除一個Post",
-	Type:        postType,
+	Name: "deleteOnePost",
+	Description: `
+	mutation{
+		deleteOnePost(
+			_id:_id
+		) {
+			_id
+			text
+			title
+		}
+	}`,
+	Type: postType,
 	Args: graphql.FieldConfigArgument{
 		"_id": &graphql.ArgumentConfig{
 			Type: graphql.NewNonNull(ObjectID),
